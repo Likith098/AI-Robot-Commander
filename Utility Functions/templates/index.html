@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Robot Commander</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* =====================================================
+           CONTENT
+        ===================================================== */
+
+        .content {
+            padding: 40px;
+        }
+
+        /* =====================================================
+           STATUS BAR
+        ===================================================== */
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            gap: 20px;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .status-value {
+            color: #666;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        /* =====================================================
+           DEMO COMMANDS
+        ===================================================== */
+
+        .demo-commands {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .demo-commands p {
+            font-weight: bold;
+            color: #667eea;
+            margin: 0 0 10px 0;
+        }
+
+        .demo-commands button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: left;
+            background: white;
+            border: 1px solid #e9ecef;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .demo-commands button:last-child {
+            margin-bottom: 0;
+        }
+
+        .demo-commands button:hover {
+            background: #e9ecef;
+        }
+
+        /* =====================================================
+           CHAT WINDOW
+        ===================================================== */
+
+        .chat-window {
+            background: #f8f9fa;
+            border-radius: 15px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease-in-out;
+            white-space: pre-line;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            background: #667eea;
+            color: white;
+            margin-left: 40px;
+            text-align: right;
+            border-bottom-right-radius: 0;
+        }
+
+        .robot-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: 40px;
+            border-bottom-left-radius: 0;
+        }
+
+        .status-message {
+            background: #fff3cd;
+            color: #856404;
+            margin-right: 40px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            margin-right: 40px;
+            border-left: 4px solid #28a745;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            margin-right: 40px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .timestamp {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        /* =====================================================
+           INPUT AREA
+        ===================================================== */
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            min-width: 0;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* =====================================================
+           MICROPHONE
+        ===================================================== */
+
+        #micBtn {
+            min-width: 65px;
+            padding: 10px 15px;
+            font-size: 1.3em;
+        }
+
+        #micBtn:hover {
+            transform: translateY(-2px);
+        }
+
+        #micBtn.listening {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            animation: micPulse 1s infinite;
+        }
+
+        @keyframes micPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 12px rgba(220, 53, 69, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+            }
+        }
+
+        /* =====================================================
+           CONTROL BUTTONS
+        ===================================================== */
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .control-buttons button {
+            flex: 1;
+        }
+
+        /* =====================================================
+           LOADING
+        ===================================================== */
+
+        .loading {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: pulse 1.5s infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .input-group {
+                flex-wrap: wrap;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                flex-basis: 100%;
+            }
+
+            #micBtn,
+            #send-btn {
+                flex: 1;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+            }
+
+            .user-message {
+                margin-left: 15px;
+            }
+
+            .robot-message,
+            .status-message,
+            .success-message,
+            .error-message {
+                margin-right: 15px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <!-- ==================================================
+             HEADER
+        ================================================== -->
+
+        <div class="header">
+
+            <h1>🤖 AI Robot Commander</h1>
+
+            <p>
+                Control your Webots robot using text or voice commands
+            </p>
+
+        </div>
+
+
+        <div class="content">
+
+            <!-- ==================================================
+                 STATUS BAR
+            ================================================== -->
+
+            <div class="status-bar">
+
+                <div class="status-item">
+
+                    <span class="status-label">
+                        Robot Status:
+                    </span>
+
+                    <span
+                        class="status-value"
+                        id="robot-status"
+                    >
+                        Not Initialized
+                    </span>
+
+                </div>
+
+
+                <div class="status-item">
+
+                    <span class="status-label">
+                        Current Task:
+                    </span>
+
+                    <span
+                        class="status-value"
+                        id="current-task"
+                    >
+                        None
+                    </span>
+
+                </div>
+
+
+                <div class="status-item">
+
+                    <span class="status-label">
+                        Position:
+                    </span>
+
+                    <span
+                        class="status-value"
+                        id="position"
+                    >
+                        X: 0.00, Z: 0.00
+                    </span>
+
+                </div>
+
+
+                <div class="status-item">
+
+                    <span class="status-label">
+                        Holding:
+                    </span>
+
+                    <span
+                        class="status-value"
+                        id="holding-object"
+                    >
+                        No
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==================================================
+                 QUICK COMMANDS
+            ================================================== -->
+
+            <div class="demo-commands">
+
+                <p>📝 Quick Commands:</p>
+
+
+                <button
+                    type="button"
+                    onclick="sendCommand('Bring me the red mug')"
+                >
+                    ☕ Bring me the red mug
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="sendCommand('Get the blue ball')"
+                >
+                    🔵 Get the blue ball
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="sendCommand('Fetch the yellow cup')"
+                >
+                    🟡 Fetch the yellow cup
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="sendCommand('Pick up the green box')"
+                >
+                    🟢 Pick up the green box
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="sendCommand('Go home')"
+                >
+                    🏠 Go home
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="sendCommand('Stop robot')"
+                >
+                    🛑 Stop robot
+                </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 CHAT WINDOW
+            ================================================== -->
+
+            <div
+                class="chat-window"
+                id="chat-window"
+            ></div>
+
+
+            <!-- ==================================================
+                 INPUT AREA
+            ================================================== -->
+
+            <div class="input-group">
+
+                <input
+                    type="text"
+                    id="command-input"
+                    placeholder="Type or speak your command..."
+                    autocomplete="off"
+                    onkeypress="if(event.key === 'Enter') sendCommand()"
+                >
+
+
+                <!-- MICROPHONE -->
+
+                <button
+                    type="button"
+                    id="micBtn"
+                    class="btn-secondary"
+                    onclick="toggleVoiceRecognition()"
+                    title="Speak command"
+                >
+                    🎤
+                </button>
+
+
+                <!-- SEND -->
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    onclick="sendCommand()"
+                    id="send-btn"
+                >
+                    Send
+                </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 CONTROL BUTTONS
+            ================================================== -->
+
+            <div class="control-buttons">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="initializeRobot()"
+                >
+                    🔧 Initialize Robot
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="getRobotStatus()"
+                >
+                    🔄 Refresh Status
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="clearChat()"
+                >
+                    🗑️ Clear Chat
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        // =====================================================
+        // GLOBAL VARIABLES
+        // =====================================================
+
+        let recognition = null;
+
+        let isListening = false;
+
+        let recognitionSupported = false;
+
+
+        // =====================================================
+        // UTILITY: ADD MESSAGE
+        // =====================================================
+
+        function addMessage(text, type = 'robot') {
+
+            const chatWindow =
+                document.getElementById('chat-window');
+
+            if (!chatWindow) {
+                return;
+            }
+
+            const message =
+                document.createElement('div');
+
+            message.className =
+                `message ${type}-message`;
+
+            const timestamp =
+                new Date().toLocaleTimeString();
+
+            message.textContent = text;
+
+            const timestampElement =
+                document.createElement('div');
+
+            timestampElement.className =
+                'timestamp';
+
+            timestampElement.textContent =
+                timestamp;
+
+            message.appendChild(timestampElement);
+
+            chatWindow.appendChild(message);
+
+            chatWindow.scrollTop =
+                chatWindow.scrollHeight;
+        }
+
+
+        // =====================================================
+        // UPDATE STATUS
+        // =====================================================
+
+        function updateStatus(status, task, pos, holding) {
+
+            const statusElement =
+                document.getElementById('robot-status');
+
+            const taskElement =
+                document.getElementById('current-task');
+
+            const positionElement =
+                document.getElementById('position');
+
+            const holdingElement =
+                document.getElementById('holding-object');
+
+
+            if (statusElement) {
+
+                statusElement.textContent =
+                    status || 'Unknown';
+            }
+
+
+            if (taskElement) {
+
+                taskElement.textContent =
+                    task || 'None';
+            }
+
+
+            // IMPORTANT:
+            // Never directly access pos.x unless pos exists.
+
+            if (positionElement) {
+
+                if (
+                    pos &&
+                    typeof pos === 'object'
+                ) {
+
+                    const x =
+                        Number.isFinite(Number(pos.x))
+                            ? Number(pos.x)
+                            : 0;
+
+                    const z =
+                        Number.isFinite(Number(pos.z))
+                            ? Number(pos.z)
+                            : (
+                                Number.isFinite(Number(pos.y))
+                                    ? Number(pos.y)
+                                    : 0
+                            );
+
+                    positionElement.textContent =
+                        `X: ${x.toFixed(2)}, Z: ${z.toFixed(2)}`;
+
+                } else {
+
+                    positionElement.textContent =
+                        'X: 0.00, Z: 0.00';
+                }
+            }
+
+
+            if (holdingElement) {
+
+                holdingElement.textContent =
+                    holding ? 'Yes' : 'No';
+            }
+        }
+
+
+        // =====================================================
+        // BUTTON LOADING
+        // =====================================================
+
+        function setButtonLoading(disabled) {
+
+            const sendBtn =
+                document.getElementById('send-btn');
+
+            const commandInput =
+                document.getElementById('command-input');
+
+
+            if (sendBtn) {
+
+                sendBtn.disabled =
+                    disabled;
+            }
+
+
+            if (commandInput) {
+
+                commandInput.disabled =
+                    disabled;
+            }
+        }
+
+
+        // =====================================================
+        // INITIALIZE ROBOT
+        // =====================================================
+
+        async function initializeRobot() {
+
+            try {
+
+                addMessage(
+                    '🔧 Initializing robot...',
+                    'status-message'
+                );
+
+                setButtonLoading(true);
+
+
+                const response =
+                    await fetch(
+                        '/api/initialize',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            }
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `Server returned HTTP ${response.status}`
+                    );
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (data.status === 'success') {
+
+                    addMessage(
+                        '✅ Robot initialized successfully!',
+                        'success-message'
+                    );
+
+
+                    updateStatus(
+                        'Ready',
+                        'Waiting for command',
+                        null,
+                        false
+                    );
+
+
+                    await getRobotStatus();
+
+                } else {
+
+                    addMessage(
+                        `⚠️ ${data.message || 'Robot initialization failed.'}`,
+                        'status-message'
+                    );
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    'Initialization error:',
+                    error
+                );
+
+
+                addMessage(
+                    `❌ Error: ${error.message}`,
+                    'error-message'
+                );
+
+            } finally {
+
+                setButtonLoading(false);
+            }
+        }
+
+
+        // =====================================================
+        // SEND COMMAND
+        // =====================================================
+
+        async function sendCommand(cmd = null) {
+
+            try {
+
+                const input =
+                    document.getElementById(
+                        'command-input'
+                    );
+
+
+                if (!input) {
+
+                    addMessage(
+                        '❌ Command input not found.',
+                        'error-message'
+                    );
+
+                    return;
+                }
+
+
+                const command =
+                    cmd || input.value.trim();
+
+
+                if (!command) {
+
+                    addMessage(
+                        '⚠️ Please enter or speak a command.',
+                        'status-message'
+                    );
+
+                    return;
+                }
+
+
+                // Clear input only for typed/voice command
+                input.value = '';
+
+
+                // Add user message
+                addMessage(
+                    `You: ${command}`,
+                    'user'
+                );
+
+
+                setButtonLoading(true);
+
+
+                addMessage(
+                    '⏳ Processing command...',
+                    'status'
+                );
+
+
+                const response =
+                    await fetch(
+                        '/api/command',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                command: command
+                            })
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `Server returned HTTP ${response.status}`
+                    );
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    'COMMAND RESPONSE:',
+                    data
+                );
+
+
+                // =================================================
+                // API SUCCESS
+                // =================================================
+
+                if (data.status === 'success') {
+
+                    const result =
+                        data.result || data;
+
+
+                    // ---------------------------------------------
+                    // Result status
+                    // ---------------------------------------------
+
+                    if (
+                        result &&
+                        result.status === 'success'
+                    ) {
+
+                        let message =
+                            `✅ ${
+                                result.message ||
+                                'Command completed successfully.'
+                            }`;
+
+
+                        // Object
+                        if (result.object) {
+
+                            message +=
+                                `\n📦 Object: ${result.object}`;
+                        }
+
+
+                        // Target - SAFE
+                        if (
+                            result.target &&
+                            typeof result.target === 'object'
+                        ) {
+
+                            const target =
+                                result.target;
+
+
+                            const targetX =
+                                Number.isFinite(
+                                    Number(target.x)
+                                )
+                                    ? Number(target.x)
+                                    : null;
+
+
+                            const targetZ =
+                                Number.isFinite(
+                                    Number(target.z)
+                                )
+                                    ? Number(target.z)
+                                    : (
+                                        Number.isFinite(
+                                            Number(target.y)
+                                        )
+                                            ? Number(target.y)
+                                            : null
+                                    );
+
+
+                            if (
+                                targetX !== null &&
+                                targetZ !== null
+                            ) {
+
+                                message +=
+                                    `\n🎯 Location: (${targetX.toFixed(2)}, ${targetZ.toFixed(2)})`;
+                            }
+                        }
+
+
+                        // Confidence - SAFE
+                        if (
+                            typeof result.confidence ===
+                            'number'
+                        ) {
+
+                            message +=
+                                `\n📊 Confidence: ${
+                                    (
+                                        result.confidence *
+                                        100
+                                    ).toFixed(1)
+                                }%`;
+                        }
+
+
+                        addMessage(
+                            message,
+                            'success'
+                        );
+
+
+                    } else if (
+                        result &&
+                        result.status === 'not_found'
+                    ) {
+
+                        let message =
+                            `❌ ${
+                                result.message ||
+                                'Object not found.'
+                            }`;
+
+
+                        if (
+                            typeof result.confidence ===
+                            'number'
+                        ) {
+
+                            message +=
+                                `\n📊 Confidence: ${
+                                    (
+                                        result.confidence *
+                                        100
+                                    ).toFixed(1)
+                                }%`;
+                        }
+
+
+                        addMessage(
+                            message,
+                            'error'
+                        );
+
+
+                    } else {
+
+                        addMessage(
+                            `⚠️ ${
+                                result?.message ||
+                                data.message ||
+                                'Command could not be completed.'
+                            }`,
+                            'error'
+                        );
+                    }
+
+
+                } else {
+
+                    addMessage(
+                        `❌ Error: ${
+                            data.message ||
+                            'Command failed.'
+                        }`,
+                        'error'
+                    );
+                }
+
+
+                // Refresh robot status
+                await getRobotStatus();
+
+
+            } catch (error) {
+
+                console.error(
+                    'Command error:',
+                    error
+                );
+
+
+                addMessage(
+                    `❌ Error: ${error.message}`,
+                    'error'
+                );
+
+            } finally {
+
+                setButtonLoading(false);
+            }
+        }
+
+
+        // =====================================================
+        // GET ROBOT STATUS
+        // =====================================================
+
+        async function getRobotStatus() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        '/api/status'
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    'STATUS RESPONSE:',
+                    data
+                );
+
+
+                if (
+                    data.status === 'success'
+                ) {
+
+                    const status =
+                        data.robot_status ||
+                        data;
+
+
+                    if (status) {
+
+                        updateStatus(
+
+                            status.task_status
+                                ? status.task_status.toUpperCase()
+                                : (
+                                    status.status ||
+                                    'Ready'
+                                ),
+
+                            status.current_command ||
+                            status.task ||
+                            'None',
+
+                            status.position ||
+                            null,
+
+                            status.holding_object ||
+                            false
+                        );
+                    }
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    'Error fetching robot status:',
+                    error
+                );
+            }
+        }
+
+
+        // =====================================================
+        // CLEAR CHAT
+        // =====================================================
+
+        function clearChat() {
+
+            const chatWindow =
+                document.getElementById(
+                    'chat-window'
+                );
+
+
+            if (chatWindow) {
+
+                chatWindow.innerHTML = '';
+            }
+
+
+            addMessage(
+                'Chat cleared.',
+                'status'
+            );
+        }
+
+
+        // =====================================================
+        // VOICE RECOGNITION SETUP
+        // =====================================================
+
+        function setupVoiceRecognition() {
+
+            const SpeechRecognition =
+                window.SpeechRecognition ||
+                window.webkitSpeechRecognition;
+
+
+            if (!SpeechRecognition) {
+
+                recognitionSupported =
+                    false;
+
+                console.warn(
+                    'Speech Recognition is not supported.'
+                );
+
+                return;
+            }
+
+
+            recognitionSupported =
+                true;
+
+
+            recognition =
+                new SpeechRecognition();
+
+
+            // =================================================
+            // VOICE SETTINGS
+            // =================================================
+
+            recognition.lang =
+                'en-US';
+
+            recognition.continuous =
+                false;
+
+            recognition.interimResults =
+                true;
+
+            recognition.maxAlternatives =
+                1;
+
+
+            // =================================================
+            // RECOGNITION START
+            // =================================================
+
+            recognition.onstart =
+                function () {
+
+                    isListening =
+                        true;
+
+
+                    const micBtn =
+                        document.getElementById(
+                            'micBtn'
+                        );
+
+
+                    if (micBtn) {
+
+                        micBtn.innerText =
+                            '🔴';
+
+                        micBtn.classList.add(
+                            'listening'
+                        );
+
+                        micBtn.title =
+                            'Stop listening';
+                    }
+
+
+                    addMessage(
+                        '🎤 Listening... Speak your command.',
+                        'status'
+                    );
+                };
+
+
+            // =================================================
+            // RECOGNITION RESULT
+            // =================================================
+
+            recognition.onresult =
+                function (event) {
+
+                    let transcript =
+                        '';
+
+
+                    for (
+                        let i = event.resultIndex;
+                        i < event.results.length;
+                        i++
+                    ) {
+
+                        transcript +=
+                            event.results[i][0].transcript;
+                    }
+
+
+                    transcript =
+                        transcript.trim();
+
+
+                    const commandInput =
+                        document.getElementById(
+                            'command-input'
+                        );
+
+
+                    if (
+                        commandInput &&
+                        transcript
+                    ) {
+
+                        commandInput.value =
+                            transcript;
+                    }
+                };
+
+
+            // =================================================
+            // RECOGNITION END
+            // =================================================
+
+            recognition.onend =
+                function () {
+
+                    isListening =
+                        false;
+
+
+                    const micBtn =
+                        document.getElementById(
+                            'micBtn'
+                        );
+
+
+                    if (micBtn) {
+
+                        micBtn.innerText =
+                            '🎤';
+
+                        micBtn.classList.remove(
+                            'listening'
+                        );
+
+                        micBtn.title =
+                            'Speak command';
+                    }
+
+
+                    const commandInput =
+                        document.getElementById(
+                            'command-input'
+                        );
+
+
+                    // -----------------------------------------
+                    // AUTO SEND
+                    // -----------------------------------------
+
+                    if (
+                        commandInput &&
+                        commandInput.value.trim().length > 0
+                    ) {
+
+                        sendCommand();
+                    }
+                };
+
+
+            // =================================================
+            // RECOGNITION ERROR
+            // =================================================
+
+            recognition.onerror =
+                function (event) {
+
+                    isListening =
+                        false;
+
+
+                    const micBtn =
+                        document.getElementById(
+                            'micBtn'
+                        );
+
+
+                    if (micBtn) {
+
+                        micBtn.innerText =
+                            '🎤';
+
+                        micBtn.classList.remove(
+                            'listening'
+                        );
+
+                        micBtn.title =
+                            'Speak command';
+                    }
+
+
+                    console.error(
+                        'Speech recognition error:',
+                        event.error
+                    );
+
+
+                    if (
+                        event.error ===
+                        'not-allowed'
+                    ) {
+
+                        addMessage(
+                            '❌ Microphone permission was denied. Please allow microphone access in your browser.',
+                            'error'
+                        );
+
+
+                    } else if (
+                        event.error ===
+                        'no-speech'
+                    ) {
+
+                        addMessage(
+                            '⚠️ No speech detected. Please try again.',
+                            'status'
+                        );
+
+
+                    } else if (
+                        event.error ===
+                        'audio-capture'
+                    ) {
+
+                        addMessage(
+                            '❌ No microphone was found. Check your microphone connection.',
+                            'error'
+                        );
+
+
+                    } else {
+
+                        addMessage(
+                            `❌ Voice recognition error: ${event.error}`,
+                            'error'
+                        );
+                    }
+                };
+        }
+
+
+        // =====================================================
+        // TOGGLE VOICE RECOGNITION
+        // =====================================================
+
+        function toggleVoiceRecognition() {
+
+            if (!recognitionSupported) {
+
+                addMessage(
+                    '❌ Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.',
+                    'error'
+                );
+
+                return;
+            }
+
+
+            if (!recognition) {
+
+                setupVoiceRecognition();
+            }
+
+
+            // -----------------------------------------------
+            // STOP LISTENING
+            // -----------------------------------------------
+
+            if (isListening) {
+
+                recognition.stop();
+
+                return;
+            }
+
+
+            // -----------------------------------------------
+            // CLEAR INPUT
+            // -----------------------------------------------
+
+            const commandInput =
+                document.getElementById(
+                    'command-input'
+                );
+
+
+            if (commandInput) {
+
+                commandInput.value = '';
+            }
+
+
+            // -----------------------------------------------
+            // START LISTENING
+            // -----------------------------------------------
+
+            try {
+
+                recognition.start();
+
+            } catch (error) {
+
+                console.error(
+                    'Could not start voice recognition:',
+                    error
+                );
+
+
+                addMessage(
+                    '⚠️ Could not start microphone. Please try clicking the microphone button again.',
+                    'status'
+                );
+            }
+        }
+
+
+        // =====================================================
+        // PAGE LOAD
+        // =====================================================
+
+        window.addEventListener(
+            'load',
+            function () {
+
+                addMessage(
+                    '👋 Welcome to AI Robot Commander!',
+                    'robot'
+                );
+
+
+                addMessage(
+                    '🔧 Click "Initialize Robot" to get started.',
+                    'robot'
+                );
+
+
+                addMessage(
+                    '🎤 You can also click the microphone and speak a command.',
+                    'robot'
+                );
+
+
+                // Setup voice recognition
+                setupVoiceRecognition();
+
+
+                // Get initial status
+                getRobotStatus();
+
+
+                // Auto-refresh every 3 seconds
+                setInterval(
+                    getRobotStatus,
+                    3000
+                );
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.12369658708950666 0.3306297061003654 0.9356191275227299 1.588423108561067
+  position -0.008725397866414382 -1.4181754558856619 0.6020416893215649
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorTileSize 0.25 0.25
+}
+Solid {
+  translation 0.17855994623011517 0.06 -6.364854697491797e-05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 1 0 0
+        roughness 0.3
+      }
+      geometry Cylinder {
+        height 0.1
+        radius 0.03
+      }
+    }
+  ]
+  name "red_mug"
+  boundingObject Cylinder {
+    height 0.1
+    radius 0.03
+  }
+}
+E-puck {
+  hidden position_0_0 8.921081103968298
+  hidden position_0_1 8.92108116495151
+  hidden rotation_1 0 -1 0 3.645289510390875
+  hidden rotation_2 0 -1 0 3.6452894494076635
+  translation 0.17855994623011517 -0.006746746995397929 -6.364854697491797e-05
+  rotation 0.38186410171680346 -0.924218437780961 0.0002951029287527648 0.0006832484025665216
+  controller "epuck_vision_controller"
+  supervisor TRUE
+}

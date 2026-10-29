@@ -1,0 +1,17 @@
+# Secrets
+.env
+.env.*
+!.env.example
+Utility Functions/env
+
+# Virtual environments
+.venv/
+.venv313/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs
+*.log
